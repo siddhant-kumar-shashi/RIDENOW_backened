@@ -20,7 +20,12 @@ const http = require('http')
 const server = http.createServer(app); // Create server here
  initializeSocket(server); // Pass server to initializeSocket
 
- app.use(cors()) ;  
+ const allowedFrontend = "https://ridenow-frontend-2qbg.vercel.app/";
+
+app.use(cors({
+  origin: allowedFrontend,
+  credentials: true // only if you're using cookies/auth tokens
+})); 
 
  connecttodb() ; 
 
