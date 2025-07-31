@@ -1,0 +1,65 @@
+const socketIo = require('socket.io');
+const userModel = require('./models/user.model');
+const captainModel = require('./models/captain.model');
+
+let io;
+let socketid
+function initializeSocket(server) {
+    io = socketIo(server, {
+        cors: {
+            origin: '*',
+            methods: [ 'GET', 'POST' ]
+        }
+    });
+
+    io.on('connection', (socket) => {
+         
+        console.log(`Client connected bla bla bla: ${socket.id}`);
+
+
+        socket.on('join', async (data) => {
+            const { userId, userType } = data;
+
+            if (userType === 'user') {
+              const response =   await userModel.findByIdAndUpdate(userId, { socketId: socket.id } , {new: true}); // here {new: true} will give the updated response
+            } else if (userType === 'captain') {
+                await captainModel.findByIdAndUpdate(userId, { socketId: socket.id });
+            }
+        });
+
+
+        socket.on('update-location-captain', async (data) => {
+            const { userId, location } = data;
+
+            if (!location || !location.ltd || !location.lng) {
+                return socket.emit('error', { message: 'Invalid location data' });
+            }
+
+            await captainModel.findByIdAndUpdate(userId, {
+                location: {
+                    ltd: location.ltd,
+                    lng: location.lng
+                }
+            });
+        });
+
+        socket.on('disconnect', () => {
+            console.log(`Client disconnected: ${socket.id}`);
+        });
+    });
+}
+
+const sendMessageToSocketId = (socketId, messageObject) => {
+
+console.log( "socketId---->"  , socketId);
+
+    if (io) {
+        const connectedSockets = Array.from(io.sockets.sockets.keys());
+        console.log("Connected socket IDs:", connectedSockets);
+        io.to(socketId).emit(messageObject.event, messageObject.data);
+    } else {
+        console.log('Socket.io not initialized.');
+    }
+}
+
+module.exports = { initializeSocket, sendMessageToSocketId };
