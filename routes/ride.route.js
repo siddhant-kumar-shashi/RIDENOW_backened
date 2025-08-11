@@ -8,8 +8,8 @@ const captainMiddleware = require('../middleware/captain.middleware')
 router.post('/create',
     authMiddleware.authuser,   
     body('pickup').isString().isLength({min: 3}).withMessage('Invalid pickup address'),
-    body('destination').isString().isLength({min:3}).withMessage('Invalid destination address'),
-    body('vehicleType').isString().isIn(['auto' , 'car' , 'motor-cycle']).withMessage('Invalid vehicle type'),
+    body('destination').isString().isLength({min:3}).withMessage('Invalid destinetion address'),
+    body('vehicleType').isString().isIn(['auto' , 'car' , 'motor']).withMessage('Invalid vehicle type'),
     ridecontroller.createRide // there was typo here
     
 )

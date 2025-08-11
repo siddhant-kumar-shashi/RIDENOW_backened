@@ -11,7 +11,6 @@ const userschema = mongoose.Schema({
         },
         lastname:{
           type: String,
-         minlength: [5 , 'lastname must be 5 charcters long' ]
         }
     },
     password:{
@@ -37,7 +36,7 @@ userschema.methods.generateAuthtoken = function(){ // never use () => as it do n
 }
 
 userschema.methods.comparepassword = async function (password) {
-    console.log('pass2' + this.password)
+  //  console.log('pass2' + this.password)
     return await bcrypt.compare(password , this.password)
 }
 

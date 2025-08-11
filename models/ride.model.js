@@ -20,7 +20,8 @@ const rideschema = mongoose.Schema({
         required: true
     },
     fare:{
-        type: Number
+        type: Number,
+        required: true
     },
     status:{
         type: String,

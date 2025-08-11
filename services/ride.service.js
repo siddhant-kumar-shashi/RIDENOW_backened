@@ -8,7 +8,8 @@ async function getfare(pickup , destination ){
         return { error: 'Both pickup and destination are required' };
     }
     const distancetime =  await mapservice.getdistancetime(pickup , destination) ;
-
+    console.log("distancetime---->" , distancetime)
+    
     const basefare = {
         auto: 10,
         motor: 30,
@@ -27,9 +28,9 @@ async function getfare(pickup , destination ){
     const fare = {
         auto: Math.round(basefare.auto + ((distancetime.distance.value / 1000) * Perkmrate.auto) + ((distancetime.duration.value / 60) * Perminrate.auto)),
         car: Math.round(basefare.car + ((distancetime.distance.value / 1000) * Perkmrate.car) + ((distancetime.duration.value / 60) * Perminrate.car)),
-        moto: Math.round(basefare.motor + ((distancetime.distance.value / 1000) * Perkmrate.motor) + ((distancetime.duration.value / 60) * Perminrate.motor))
+        motor: Math.round(basefare.motor + ((distancetime.distance.value / 1000) * Perkmrate.motor) + ((distancetime.duration.value / 60) * Perminrate.motor)),
+        distancetime
     }
-        // here parseFloat will separate integer 10 from string '10 km'
     return fare ; 
 }
 
@@ -44,13 +45,15 @@ module.exports.createride = async ({pickup , destination , vehicleType , user}) 
         return res.status(201).json({msg: 'All fields are required'})
     }
     const fare = await getfare(pickup , destination) ;
-    console.log('Ride service')
+
     const ride = await rideModel.create({  // do not miss await
         user,
         pickup,
         destination,
-        fare: fare.vehicleType,
-        otp: getotp()    // do not write like getotp only
+        fare: fare[vehicleType],  // since vehicleType = 'car' so write fare[vehicleType]
+        otp: getotp(),    // do not write like getotp only
+        distance: fare.distancetime.distance.value,
+        duration: fare.distancetime.duration.value
    })
 
    return ride ; 
